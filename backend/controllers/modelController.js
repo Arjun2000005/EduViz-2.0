@@ -1,57 +1,11 @@
-const { MongoClient, GridFSBucket, ObjectId } = require("mongodb");
-const { GoogleGenerativeAI } = require("@google/generative-ai");
-require("dotenv").config();
+const multer = require("multer");
+const { ObjectId } = require("mongodb");
 
-// Initialize Google Generative AI
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+const upload = multer({ storage: multer.memoryStorage() });
 
-// Chatbot data storage (this could be moved to a separate module if needed)
-let preloadedData = null;
-
-// Controller object
-const modelController = {
-  // Preload data
-  preload: (req, res) => {
-    preloadedData = req.body.data;
-    res.json({ message: "Data preloaded successfully!" });
-  },
-
-  // Enhanced Chat
-  chat: async (req, res) => {
-    const userMessage = req.body.message;
-
-    if (!preloadedData) {
-      return res.json({ reply: "No data preloaded yet! Select a part first." });
-    }
-
-    try {
-      const prompt = `
-        You’re an educational AI assistant designed for students learning about engineering and materials science. The user asked: "${userMessage}". Respond based on this context: The ${preloadedData.item} is made by ${preloadedData.details} and crafted with ${preloadedData.materials}. Provide a detailed, study-based response in a point-by-point format using emojis to make it engaging. Each point should teach something valuable about the part, its manufacturing, materials, or usage in a bicycle. Keep the tone conversational and encouraging for learning!
-
-        Format your response as HTML with proper line breaks and tags, like this:
-        <p>🧠 <strong>Key Fact</strong>: [Educational fact about the part]</p>
-        <p>🔧 <strong>How It’s Made</strong>: [A step or detail about manufacturing]</p>
-        <p>🛠️ <strong>Material Spotlight</strong>: [Detail about the material and why it’s used]</p>
-        <p>🚴 <strong>Why It Matters</strong>: [How this part impacts the bicycle’s performance or functionality]</p>
-        <p>📚 <strong>Fun Fact</strong>: [An interesting tidbit to keep the student engaged]</p>
-      `;
-
-      const result = await model.generateContent(prompt);
-      const speech = result.response.text();
-
-      res.json({ reply: speech });
-    } catch (error) {
-      console.error("Error with Generative AI:", error);
-      res.json({
-        reply: `Whoops, I hit a snag! Let’s talk about the ${preloadedData.item}—what do you want to know?`,
-      });
-    }
-  },
-
-  // Upload a model
-  uploadModel: async (req, res) => {
-    const gfs = req.app.locals.gfs; // Access gfs from app locals
+class ModelController {
+  static async uploadModel(req, res) {
+    const { gfs } = req.app.locals;
     if (!gfs) return res.status(503).send("Database not ready");
 
     try {
@@ -78,12 +32,10 @@ const modelController = {
       console.error("Upload error:", error);
       res.status(500).send("Upload failed");
     }
-  },
+  }
 
-  // Fetch a model
-  getModel: async (req, res) => {
-    const gfs = req.app.locals.gfs;
-    const db = req.app.locals.db;
+  static async getModel(req, res) {
+    const { gfs, db } = req.app.locals;
     if (!gfs) return res.status(503).send("Database not ready");
 
     try {
@@ -105,12 +57,10 @@ const modelController = {
       console.error("Fetch error:", error);
       res.status(500).send("Error fetching model");
     }
-  },
+  }
 
-  // List all models
-  getModels: async (req, res) => {
-    const gfs = req.app.locals.gfs;
-    const db = req.app.locals.db;
+  static async listModels(req, res) {
+    const { db, gfs } = req.app.locals;
     if (!gfs) return res.status(503).send("Database not ready");
 
     try {
@@ -127,7 +77,7 @@ const modelController = {
       console.error("List error:", error);
       res.status(500).send("Error listing models");
     }
-  },
-};
+  }
+}
 
-module.exports = modelController;
+module.exports = { ModelController, upload };

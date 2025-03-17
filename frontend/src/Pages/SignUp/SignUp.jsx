@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 import "./SignUp.css";
 
 const SignUp = () => {
@@ -11,7 +11,7 @@ const SignUp = () => {
     password: "",
     termsAgree: false,
   });
-  const navigate = useNavigate();
+  const navigate = useNavigate(); // Hook for navigation
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -108,14 +108,10 @@ const SignUp = () => {
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-
-    const url = isSignUp
-      ? "http://localhost:3000/api/auth/register"
-      : "http://localhost:3000/api/auth/login";
-
     if (isSignUp) {
+      // Basic validation
       if (
         !formData.fullName ||
         !formData.email ||
@@ -125,57 +121,18 @@ const SignUp = () => {
         alert("Please fill all fields and agree to terms");
         return;
       }
-
-      try {
-        const response = await fetch(url, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name: formData.fullName,
-            email: formData.email,
-            password: formData.password,
-          }),
-        });
-
-        const data = await response.json();
-        if (response.ok) {
-          console.log("Sign up successful:", data);
-          navigate("/role-selection"); // Redirect after signup
-        } else {
-          alert(data.message || "Sign up failed");
-        }
-      } catch (error) {
-        console.error("Error:", error);
-        alert("An error occurred during sign up");
-      }
+      // Here you would typically make an API call to register the user
+      // For this example, we'll simulate a successful signup
+      console.log("Sign up successful:", formData);
+      navigate("/role-selection"); // Redirect to role selection page
     } else {
+      // Handle sign in (no navigation)
       if (!formData.email || !formData.password) {
         alert("Please fill all fields");
         return;
       }
-
-      try {
-        const response = await fetch(url, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email: formData.email,
-            password: formData.password,
-          }),
-        });
-
-        const data = await response.json();
-        if (response.ok) {
-          console.log("Sign in successful:", data);
-          localStorage.setItem("token", data.token); // Store JWT token
-          // Optionally redirect, e.g., navigate("/dashboard");
-        } else {
-          alert(data.message || "Sign in failed");
-        }
-      } catch (error) {
-        console.error("Error:", error);
-        alert("An error occurred during sign in");
-      }
+      console.log("Sign in attempt:", formData);
+      // Here you would typically make an API call to sign in
     }
   };
 

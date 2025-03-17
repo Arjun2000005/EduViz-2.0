@@ -1,5 +1,5 @@
 export const bicycleData = {
-  fullviewModel: "67d828ddd1005f39762c28a3",
+  fullviewModel: "67d84a43e46d6c8c151838cd",
   parts: {
     seat: {
       modelId: "67d514a702301ecf9106544d",

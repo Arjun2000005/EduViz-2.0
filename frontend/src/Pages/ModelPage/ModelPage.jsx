@@ -1,8 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import {
+  FaSun,
+  FaMoon,
+  FaBars,
+  FaChevronLeft,
+  FaInfoCircle,
+} from "react-icons/fa";
+import { bicycleData } from "../../Data/bicycleData";
 import ModelViewer from "../../Components/Model/ModelViewer/ModelViewer";
 import ModelDescription from "../../Components/Model/ModelDescription/ModelDescription";
-import { FaSun, FaMoon } from "react-icons/fa";
-import { bicycleData } from "../../Data/bicycleData";
+// Import the CSS file (we'll create this separately)
+import "./ModelPage.css";
 
 export default function ModelPage() {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -13,17 +21,52 @@ export default function ModelPage() {
   const [modelSrc, setModelSrc] = useState(null);
   const [isDismantleMode, setIsDismantleMode] = useState(true);
   const [selectedPart, setSelectedPart] = useState(null);
+  const [animationProgress, setAnimationProgress] = useState(0);
 
   const parts = Object.keys(bicycleData.parts);
 
+  // Animation progress effect
   useEffect(() => {
-    const url = `http://localhost:3000/api/models/model/${bicycleData.fullviewModel}`;
+    let progressInterval;
+
+    if (isPlaying) {
+      progressInterval = setInterval(() => {
+        setAnimationProgress((prev) => {
+          if (prev >= 100) {
+            clearInterval(progressInterval);
+            return 100;
+          }
+          return prev + 4;
+        });
+      }, 100);
+    }
+
+    return () => {
+      if (progressInterval) clearInterval(progressInterval);
+    };
+  }, [isPlaying]);
+
+  // Reset animation progress when animation completes
+  useEffect(() => {
+    if (animationProgress === 100) {
+      setTimeout(() => {
+        setAnimationProgress(0);
+        setIsPlaying(false);
+        setIsDismantleMode(!isDismantleMode);
+      }, 200);
+    }
+  }, [animationProgress, isDismantleMode]);
+
+  useEffect(() => {
+    // Update port from 5000 to 3000 to match backend
+    const url = `http://localhost:3000/model/model/${bicycleData.fullviewModel}`;
     setModelSrc(url);
   }, []);
 
   const handlePartSelect = (part) => {
     const partFileId = bicycleData.parts[part].modelId;
-    const url = `http://localhost:3000/api/models/model/${partFileId}`;
+    // Update port from 5000 to 3000 to match backend
+    const url = `http://localhost:3000/model/model/${partFileId}`;
     setModelSrc(url);
     setSelectedPart(part);
     setShowDetailView(true);
@@ -37,6 +80,7 @@ export default function ModelPage() {
         modelViewerRef.current.animationName = animations[0];
         modelViewerRef.current.play();
         setIsPlaying(true);
+        setAnimationProgress(0);
         setTimeout(() => {
           modelViewerRef.current.pause();
           setIsPlaying(false);
@@ -49,7 +93,8 @@ export default function ModelPage() {
   const handleBackClick = () => {
     setShowDetailView(false);
     setSelectedPart(null);
-    const url = `http://localhost:3000/api/models/model/${bicycleData.fullviewModel}`;
+    // Update port from 5000 to 3000 to match backend
+    const url = `http://localhost:3000/model/model/${bicycleData.fullviewModel}`;
     setModelSrc(url);
   };
 
@@ -60,28 +105,40 @@ export default function ModelPage() {
   return (
     <div className={`app ${isDarkMode ? "dark" : ""}`}>
       <header className="header">
-        <h1>Model-Viewer</h1>
-        <div className="header-controls">
-          <button onClick={toggleDrawer} className="menu-button">
-            Parts
-          </button>
-          <button onClick={toggleTheme} className="theme-toggle">
-            {isDarkMode ? <FaSun /> : <FaMoon />}
-          </button>
+        <div className="header-content">
+          <h1 className="logo">Model-Viewer Pro</h1>
+          <div className="header-controls">
+            <button onClick={toggleDrawer} className="menu-button">
+              <span>Parts</span>
+              <FaBars className="icon" />
+            </button>
+            <button onClick={toggleTheme} className="theme-toggle">
+              {isDarkMode ? (
+                <FaSun className="icon" />
+              ) : (
+                <FaMoon className="icon" />
+              )}
+            </button>
+          </div>
         </div>
       </header>
 
       <div className={`drawer ${isDrawerOpen ? "open" : ""}`}>
         <div className="drawer-content">
-          <h2>Parts</h2>
-          <ul>
+          <h2>Parts Library</h2>
+          <ul className="parts-list">
             {parts.map((part) => (
               <li
                 key={part}
                 onClick={() => handlePartSelect(part)}
-                className={selectedPart === part ? "selected" : ""}
+                className={`part-item ${
+                  selectedPart === part ? "selected" : ""
+                }`}
               >
-                {bicycleData.parts[part].name}
+                <span className="part-name">
+                  {bicycleData.parts[part].name}
+                </span>
+                <FaInfoCircle className="info-icon" />
               </li>
             ))}
           </ul>
@@ -90,39 +147,37 @@ export default function ModelPage() {
 
       {isDrawerOpen && <div className="overlay" onClick={toggleDrawer}></div>}
 
-      <div className="controls">
-        {!showDetailView && (
-          <button
-            onClick={handleToggleAnimation}
-            disabled={isPlaying}
-            className="play-button"
-          >
-            {isDismantleMode ? "Dismantle" : "Assemble"}
-          </button>
-        )}
-        {showDetailView && (
-          <button onClick={handleBackClick} className="back-button">
-            Back to Full View
-          </button>
-        )}
-      </div>
-
-      {!showDetailView ? (
-        <div className="model-container">
-          {modelSrc ? (
-            <ModelViewer
-              modelSrc={modelSrc}
-              isPlaying={isPlaying}
-              showDetailView={showDetailView}
-              onLoad={handleModelViewerLoad}
-            />
+      <main className="main-content">
+        <div className="controls">
+          {!showDetailView ? (
+            <div className="main-controls">
+              <button
+                onClick={handleToggleAnimation}
+                disabled={isPlaying}
+                className={`action-button ${isPlaying ? "disabled" : ""}`}
+              >
+                {isDismantleMode ? "Dismantle" : "Assemble"}
+              </button>
+              {isPlaying && (
+                <div className="progress-container">
+                  <div
+                    className="progress-bar"
+                    style={{ width: `${animationProgress}%` }}
+                  ></div>
+                </div>
+              )}
+            </div>
           ) : (
-            <p>Loading model...</p>
+            <button onClick={handleBackClick} className="back-button">
+              <FaChevronLeft className="icon" />
+              <span>Back to Full View</span>
+            </button>
           )}
         </div>
-      ) : (
-        <div className="split-view">
-          <div className="model-container half">
+
+        {!showDetailView ? (
+          <div className="model-container">
+            <div className="model-backdrop"></div>
             {modelSrc ? (
               <ModelViewer
                 modelSrc={modelSrc}
@@ -131,14 +186,36 @@ export default function ModelPage() {
                 onLoad={handleModelViewerLoad}
               />
             ) : (
-              <p>Loading model...</p>
+              <div className="loading-state">
+                <div className="loading-spinner"></div>
+                <p>Loading model...</p>
+              </div>
             )}
           </div>
-          <div className="description-container">
-            <ModelDescription selectedPart={selectedPart} />
+        ) : (
+          <div className="split-view">
+            <div className="model-container detail-view">
+              <div className="model-backdrop"></div>
+              {modelSrc ? (
+                <ModelViewer
+                  modelSrc={modelSrc}
+                  isPlaying={isPlaying}
+                  showDetailView={showDetailView}
+                  onLoad={handleModelViewerLoad}
+                />
+              ) : (
+                <div className="loading-state">
+                  <div className="loading-spinner"></div>
+                  <p>Loading model...</p>
+                </div>
+              )}
+            </div>
+            <div className="description-container">
+              <ModelDescription selectedPart={selectedPart} />
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </main>
     </div>
   );
 }
