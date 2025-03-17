@@ -1,0 +1,254 @@
+/* Header.css (Transparent Theme) - Improved Version */
+
+/* General Header Styling */
+.header-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 40px;
+  background-color: transparent; /* Transparent background */
+  position: fixed; /* Fixed position to overlay content */
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  transition: all 0.4s ease;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Change header background when scrolling */
+.header-wrapper.scrolled {
+  background-color: rgba(
+    45,
+    45,
+    45,
+    0.95
+  ); /* Semi-transparent dark gray when scrolled */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(10px);
+  border-bottom: none;
+}
+
+/* Logo Styling */
+.logo {
+  font-size: 28px;
+  font-weight: 700;
+  color: #ffffff; /* White for better visibility */
+  text-decoration: none;
+  letter-spacing: 0.5px;
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.logo:hover {
+  color: #00adb5; /* Teal accent for hover */
+  transform: scale(1.05);
+}
+
+/* Navigation Links Styling */
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  margin: 0 20px;
+}
+
+.nav-link-item a {
+  text-decoration: none;
+  color: #e0e0e0; /* Light gray text */
+  font-size: 16px;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.nav-link-item a:hover {
+  color: #ffffff; /* White on hover */
+}
+
+.nav-link-item a:after {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: 0;
+  left: 0;
+  background-color: #00adb5;
+  transition: width 0.3s ease;
+}
+
+.nav-link-item a:hover:after {
+  width: 100%;
+}
+
+/* Authentication Buttons */
+.auth-buttons {
+  display: flex;
+  gap: 15px;
+}
+
+.button {
+  padding: 10px 24px;
+  border: 1.5px solid #00adb5; /* Teal border */
+  border-radius: 8px;
+  background-color: transparent;
+  color: #ffffff; /* White text */
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 0.3px;
+}
+
+.button:hover {
+  background-color: rgba(
+    0,
+    173,
+    181,
+    0.15
+  ); /* Semi-transparent teal on hover */
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 173, 181, 0.2);
+}
+
+.button.primary {
+  background-color: #00adb5; /* Teal background */
+  color: #ffffff; /* White text */
+}
+
+.button.primary:hover {
+  background-color: #00c2cc; /* Brighter teal on hover */
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 173, 181, 0.4);
+}
+
+/* Profile Section */
+.profile-section {
+  position: relative;
+}
+
+.profile-icon {
+  font-size: 24px;
+  color: #ffffff; /* White */
+  cursor: pointer;
+  background-color: rgba(0, 173, 181, 0.2);
+  padding: 10px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.profile-icon:hover {
+  background-color: rgba(0, 173, 181, 0.4);
+  transform: scale(1.1);
+}
+
+/* Dropdown Styling */
+.dropdown {
+  position: absolute;
+  top: calc(100% + 15px);
+  right: 0;
+  background-color: rgba(45, 45, 45, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  min-width: 180px;
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+  animation: dropdownFade 0.3s ease;
+}
+
+@keyframes dropdownFade {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-item {
+  padding: 12px 20px;
+  font-size: 15px;
+  color: #e0e0e0; /* Light gray text */
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dropdown-item a {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.dropdown-item:hover {
+  background-color: rgba(0, 173, 181, 0.15);
+  color: #ffffff;
+}
+
+/* Responsive Design */
+@media (max-width: 860px) {
+  .header-wrapper {
+    padding: 15px 20px;
+  }
+
+  .nav-links {
+    gap: 20px;
+  }
+
+  .nav-link-item:nth-child(4) {
+    display: none; /* Hide "Become a Creator" on smaller screens */
+  }
+}
+
+@media (max-width: 768px) {
+  .header-wrapper {
+    flex-wrap: wrap;
+    background-color: rgba(45, 45, 45, 0.95);
+    backdrop-filter: blur(10px);
+  }
+
+  .nav-links {
+    order: 3;
+    width: 100%;
+    justify-content: space-between;
+    margin: 15px 0 0;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .auth-buttons {
+    margin-left: auto;
+  }
+
+  .button {
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .logo {
+    font-size: 24px;
+  }
+
+  .nav-links {
+    gap: 5px;
+  }
+
+  .nav-link-item a {
+    font-size: 14px;
+    padding: 6px 10px;
+  }
+
+  .button {
+    padding: 7px 12px;
+    font-size: 13px;
+  }
+
+  .nav-link-item:nth-child(3) {
+    display: none; /* Hide "How It Works" on very small screens */
+  }
+}
